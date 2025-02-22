@@ -1,6 +1,115 @@
 const alphabetStr = 'abcdefghijklmnopqrstuvwxyz';
 const numbersStr = '0123456789';
 
+// Return the remainder of a string after the first occurrence of a given value.
+export const after = (subject: string, search: string | number): string => {
+    if (typeof search === 'number') {
+        search = search.toString();
+    }
+
+    if (search === "") {
+        return subject;
+    }
+
+    const pos = subject.indexOf(search);
+
+    return pos === -1 ? subject : subject.substring(pos + search.length);
+}
+
+// Return the remainder of a string after the last occurrence of a given value.
+export const afterLast = (subject: string, search: string | number): string => {
+    if (typeof search === 'number') {
+        search = search.toString();
+    }
+
+    if (search === "") {
+        return subject;
+    }
+
+    const pos = subject.lastIndexOf(search);
+
+    return pos === -1 ? subject : subject.substring(pos + search.length);
+}
+
+// Get the portion of a string before the first occurrence of a given value.
+export const before = (subject: string, search: string | number): string => {
+    if (typeof search === 'number') {
+        search = search.toString();
+    }
+
+    if (search === "") {
+        return subject;
+    }
+
+    const pos = subject.indexOf(search);
+
+    return pos === -1 ? subject : subject.substring(0, pos);
+}
+
+// Get the portion of a string before the last occurrence of a given value.
+export const beforeLast = (subject: string, search: string | number): string => {
+    if (typeof search === 'number') {
+        search = search.toString();
+    }
+
+    if (search === "") {
+        return subject;
+    }
+
+    const pos = subject.lastIndexOf(search);
+
+    return pos === -1 ? subject : subject.substring(0, pos);
+}
+
+// Get the portion of a string between two given values.
+export const between = (subject: string, from: string | number, to: string | number): string => {
+    if (from === '' || to === '') {
+        return subject;
+    }
+
+    return beforeLast(after(subject, from), to);
+}
+
+// Get the smallest possible portion of a string between two given values.
+export const betweenFirst = (subject: string, from: string | number, to: string | number): string => {
+    if (from === '' || to === '') {
+        return subject;
+    }
+
+    return before(after(subject, from), to);
+}
+
+// Convert a value to camel case.
+export const camel = (value: string): string => {
+    return lcfirst(studly(value));
+}
+
+// Remove the given string(s) if it exists at the start of the haystack.
+export const chopStart = (subject: string, needle: string | Array<string>): string => {
+    const needles = Array.isArray(needle) ? needle : [needle];
+
+    for (const n of needles) {
+        if (subject.startsWith(n)) {
+            return subject.substring(n.length);
+        }
+    }
+
+    return subject;
+};
+
+// Remove the given string(s) if it exists at the end of the haystack.
+export const chopEnd = (subject: string, needle: string | Array<string>): string => {
+    const needles = Array.isArray(needle) ? needle : [needle];
+
+    for (const n of needles) {
+        if (subject.endsWith(n)) {
+            return subject.substring(0, subject.length - n.length);
+        }
+    }
+
+    return subject;
+}
+
 // Determine if a given string contains a given substring.
 export const contains = (haystack: string, needles: string | Array<string>, ignoreCase = false): boolean => {
     if (ignoreCase) {
@@ -137,6 +246,14 @@ export const reverse = (value: string): string => {
 // Remove all "extra" blank space from the given string.
 export const squish = (value: string): string => {
     return value.trim().replace(/(\s|\u3164|\u1160)+/gu, ' ');
+}
+
+// Convert a value to studly caps case.
+export const studly = (value: string): string => {
+    const words = value.replace(/[-_]/g, ' ').split(' ');
+    const studlyWords = words.map(word => word.charAt(0).toUpperCase() + word.slice(1));
+
+    return studlyWords.join('');
 }
 
 // Make a string's first character lowercase.
