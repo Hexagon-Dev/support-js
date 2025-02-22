@@ -144,6 +144,40 @@ export const deduplicate = (value: string, character: string = ' '): string => {
     return value.replace(new RegExp(`${character}+`, 'g'), character);
 };
 
+// Determine if a given string ends with a given substring.
+export const endsWith = (haystack: string, needles: string | Array<string>): boolean => {
+    if (typeof needles === 'string') {
+        needles = [needles];
+    }
+
+    return needles.filter(Boolean).some(needle => haystack.endsWith(needle));
+}
+
+// Cap a string with a single instance of a given value.
+export const finish = (value: string, cap: string): string => {
+    const escapeRegExp = (str: string): string => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+    return value.replace(new RegExp(`(?:${escapeRegExp(cap)})+$`, 'u'), '') + cap;
+};
+
+// Wrap the string with the given strings.
+export const wrap = (value: string, before: string, after?: string): string => {
+    return before + value + (after ?? before);
+};
+
+// Unwrap the string with the given strings.
+export const unwrap = (value: string, before: string, after?: string): string => {
+    if (value.startsWith(before)) {
+        value = value.substring(before.length);
+    }
+
+    if (value.endsWith(after ??= before)) {
+        value = value.substring(0, value.length - after.length);
+    }
+
+    return value;
+}
+
 // Determine if a given value is valid JSON.
 export const isJson = (value: any): boolean => {
     if (typeof value !== 'string') {

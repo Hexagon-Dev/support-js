@@ -169,6 +169,47 @@ test('deduplicate', () => {
     expect(str.deduplicate('ムだだム', 'だ')).toBe('ムだム');
 });
 
+test('endsWith', () => {
+    expect(str.endsWith('jason', 'on')).toBe(true);
+    expect(str.endsWith('jason', 'jason')).toBe(true);
+    expect(str.endsWith('jason', ['on'])).toBe(true);
+    expect(str.endsWith('jason', ['no', 'on'])).toBe(true);
+    expect(str.endsWith('jason', 'no')).toBe(false);
+    expect(str.endsWith('jason', ['no'])).toBe(false);
+    expect(str.endsWith('jason', '')).toBe(false);
+    expect(str.endsWith('', '')).toBe(false);
+    expect(str.endsWith('jason', 'N')).toBe(false);
+    expect(str.endsWith('7', ' 7')).toBe(false);
+    expect(str.endsWith('a7', '7')).toBe(true);
+
+    expect(str.endsWith('Jönköping', 'öping')).toBe(true);
+    expect(str.endsWith('Malmö', 'mö')).toBe(true);
+    expect(str.endsWith('Jönköping', 'oping')).toBe(false);
+    expect(str.endsWith('Malmö', 'mo')).toBe(false);
+    expect(str.endsWith('你好', '好')).toBe(true);
+    expect(str.endsWith('你好', '你')).toBe(false);
+    expect(str.endsWith('你好', 'a')).toBe(false);
+});
+
+test('finish', () => {
+    expect(str.finish('ab', 'bc')).toBe('abbc');
+    expect(str.finish('abbcbc', 'bc')).toBe('abbc');
+    expect(str.finish('abcbbcbc', 'bc')).toBe('abcbbc');
+});
+
+test('wrap', () => {
+    expect(str.wrap('value', '"')).toBe('"value"');
+    expect(str.wrap('-bar-', 'foo', 'baz')).toBe('foo-bar-baz');
+});
+
+test('unwrap', () => {
+    expect(str.unwrap('"value"', '"')).toBe('value');
+    expect(str.unwrap('"value', '"')).toBe('value');
+    expect(str.unwrap('value"', '"')).toBe('value');
+    expect(str.unwrap('foo-bar-baz', 'foo-', '-baz')).toBe('bar');
+    expect(str.unwrap('{some: "json"}', '{', '}')).toBe('some: "json"');
+});
+
 test('isJson', () => {
     expect(str.isJson('1')).toBe(true);
     expect(str.isJson('[1,2,3]')).toBe(true);
