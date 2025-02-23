@@ -1,1 +1,1 @@
-export * from './str';
+export * as str from './str.js';
