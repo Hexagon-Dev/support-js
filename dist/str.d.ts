@@ -12,6 +12,7 @@ export declare const containsAll: (haystack: string, needles: Array<string>, ign
 export declare const doesntContain: (haystack: string, needles: string | Array<string>, ignoreCase?: boolean) => boolean;
 export declare const deduplicate: (value: string, character?: string) => string;
 export declare const endsWith: (haystack: string, needles: string | Array<string>) => boolean;
+export declare const excerpt: (value: string, phrase?: string, radius?: number, omission?: string) => string | null;
 export declare const finish: (value: string, cap: string) => string;
 export declare const wrap: (value: string, before: string, after?: string) => string;
 export declare const unwrap: (value: string, before: string, after?: string) => string;

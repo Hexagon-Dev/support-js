@@ -1,3 +1,5 @@
+import { escapeRegExp } from './helpers';
+
 const alphabetStr = 'abcdefghijklmnopqrstuvwxyz';
 const numbersStr = '0123456789';
 
@@ -153,10 +155,39 @@ export const endsWith = (haystack: string, needles: string | Array<string>): boo
     return needles.filter(Boolean).some(needle => haystack.endsWith(needle));
 }
 
+// Extracts an excerpt from text that matches the first instance of a phrase.
+export const excerpt = (value: string, phrase: string = '', radius: number = 100, omission: string = '...'): string | null => {
+    const regex = new RegExp(`^(.*?)(${escapeRegExp(phrase)})(.*)$`, 'iu');
+    const matches = value.match(regex);
+
+    if (!matches) {
+        return null;
+    }
+
+    const safeSlice = (str: string, start: number, length: number): string =>
+        Array.from(str).slice(start, start + length).join('');
+
+    const originalStart = matches[1].trimStart();
+
+    let start = safeSlice(originalStart, Math.max(Array.from(originalStart).length - radius, 0), radius).trimStart();
+
+    if (start !== originalStart) {
+        start = omission + start;
+    }
+
+    const originalEnd = matches[3].trimEnd();
+
+    let end = safeSlice(originalEnd, 0, radius).trimEnd();
+
+    if (end !== originalEnd) {
+        end = end + omission;
+    }
+
+    return start + matches[2] + end;
+}
+
 // Cap a string with a single instance of a given value.
 export const finish = (value: string, cap: string): string => {
-    const escapeRegExp = (str: string): string => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
     return value.replace(new RegExp(`(?:${escapeRegExp(cap)})+$`, 'u'), '') + cap;
 };
 

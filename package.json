@@ -22,11 +22,19 @@
   },
   "homepage": "https://github.com/Hexagon-Dev/support-js#readme",
   "description": "",
-  "keywords": ["js", "javascript", "ts", "typescript", "helpers", "utilities"],
+  "keywords": [
+    "js",
+    "javascript",
+    "ts",
+    "typescript",
+    "helpers",
+    "utilities"
+  ],
   "devDependencies": {
     "@types/jest": "^29.5.14",
     "jest": "^29.7.0",
     "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
     "typescript": "^5.7.3"
   }
 }

@@ -191,6 +191,50 @@ test('endsWith', () => {
     expect(str.endsWith('你好', 'a')).toBe(false);
 });
 
+test('excerpt', () => {
+    expect(str.excerpt('This is a beautiful morning', 'beautiful', 5)).toBe('...is a beautiful morn...');
+    expect(str.excerpt('This is a beautiful morning', 'this', 5)).toBe('This is a...');
+    expect(str.excerpt('This is a beautiful morning', 'morning', 5)).toBe('...iful morning');
+    expect(str.excerpt('This is a beautiful morning', 'day')).toBeNull();
+    expect(str.excerpt('This is a beautiful! morning', 'Beautiful', 5)).toBe('...is a beautiful! mor...');
+    expect(str.excerpt('This is a beautiful? morning', 'beautiful', 5)).toBe('...is a beautiful? mor...');
+    expect(str.excerpt('', '', 0)).toBe('');
+    expect(str.excerpt('a', 'a', 0)).toBe('a');
+    expect(str.excerpt('abc', 'B', 0)).toBe('...b...');
+    expect(str.excerpt('abc', 'b', 1)).toBe('abc');
+    expect(str.excerpt('abcd', 'b', 1)).toBe('abc...');
+    expect(str.excerpt('zabc', 'b', 1)).toBe('...abc');
+    expect(str.excerpt('zabcd', 'b', 1)).toBe('...abc...');
+    expect(str.excerpt('zabcd', 'b', 2)).toBe('zabcd');
+    expect(str.excerpt('  zabcd  ', 'b', 4)).toBe('zabcd');
+    expect(str.excerpt('z  abc  d', 'b', 1)).toBe('...abc...');
+    expect(str.excerpt('This is a beautiful morning', 'beautiful', 5, '[...]'))
+        .toBe('[...]is a beautiful morn[...]');
+    expect(str.excerpt('This is the ultimate supercalifragilisticexpialidocious very looooooooooooooooooong looooooooooooong beautiful morning with amazing sunshine and awesome temperatures. So what are you gonna do about it?', 'very', 100, '[...]'))
+        .toBe('This is the ultimate supercalifragilisticexpialidocious very looooooooooooooooooong looooooooooooong beautiful morning with amazing sunshine and awesome tempera[...]');
+
+    expect(str.excerpt('taylor', 'y', 0)).toBe('...y...');
+    expect(str.excerpt('taylor', 'Y', 1)).toBe('...ayl...');
+    expect(str.excerpt('<div> The article description </div>', 'article')).toBe('<div> The article description </div>');
+    expect(str.excerpt('<div> The article description </div>', 'article', 5)).toBe('...The article desc...');
+    expect(str.excerpt('')).toBe('');
+    expect(str.excerpt('The article description', '', 8)).toBe('The arti...');
+    expect(str.excerpt(' ')).toBe('');
+    expect(str.excerpt('The article description', ' ', 4)).toBe('The arti...');
+    expect(str.excerpt('The article description', 'description', 4)).toBe('...cle description');
+    expect(str.excerpt('The article description', 'T', 0)).toBe('T...');
+    expect(str.excerpt('What is the article?', 'What', 2, '?')).toBe('What i?');
+
+    expect(str.excerpt('åèö - 二 sān 大åèö', '二 sān', 4)).toBe('...ö - 二 sān 大åè...');
+    expect(str.excerpt('åèö - 二 sān 大åèö', 'åèö', 4)).toBe('åèö - 二...');
+    expect(str.excerpt('åèö - 二 sān 大åèö', 'åèö - 二 sān 大åèö', 4)).toBe('åèö - 二 sān 大åèö');
+    expect(str.excerpt('㏗༼㏗', '༼', 0)).toBe('...༼...');
+    expect(str.excerpt('Como você está', 'ê', 2)).toBe('...ocê e...');
+    expect(str.excerpt('João Antônio ', 'jo', 2)).toBe('João...');
+    expect(str.excerpt('João Antônio', 'JOÃO', 5)).toBe('João Antô...');
+    expect(str.excerpt('', '/')).toBeNull();
+});
+
 test('finish', () => {
     expect(str.finish('ab', 'bc')).toBe('abbc');
     expect(str.finish('abbcbc', 'bc')).toBe('abbc');
