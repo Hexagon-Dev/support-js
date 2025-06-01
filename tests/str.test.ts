@@ -362,6 +362,13 @@ test('isUuid', () => {
     });
 });
 
+test('kebab', () => {
+    expect(str.kebab('LaravelPhpFramework')).toBe('laravel-php-framework');
+    expect(str.kebab('Laravel Php Framework')).toBe('laravel-php-framework');
+    expect(str.kebab('Laravel ❤ Php Framework')).toBe('laravel❤-php-framework');
+    expect(str.kebab('')).toBe('');
+});
+
 test('words', () => {
     expect(str.words('Taylor Otwell', 1)).toBe('Taylor...');
     expect(str.words('Taylor Otwell', 1, '___')).toBe('Taylor___');
@@ -394,6 +401,54 @@ test('reverse', () => {
     expect(str.reverse('raBooF')).toBe('FooBar');
     expect(str.reverse('őtüzsineT')).toBe('Teniszütő');
     expect(str.reverse('☆etyBitluM❤')).toBe('❤MultiByte☆');
+});
+
+test('title', () => {
+    expect(str.title('jefferson costella')).toBe('Jefferson Costella');
+    expect(str.title('jefFErson coSTella')).toBe('Jefferson Costella');
+
+    expect(str.title('jefferson_costella')).toBe('Jefferson_Costella');
+    expect(str.title('jefFErson_coSTella')).toBe('Jefferson_Costella');
+
+    expect(str.title('')).toBe('');
+    expect(str.title('123 Laravel')).toBe('123 Laravel');
+    expect(str.title('❤Laravel')).toBe('❤Laravel');
+    expect(str.title('Laravel ❤')).toBe('Laravel ❤');
+    expect(str.title('laravel123')).toBe('Laravel123');
+    expect(str.title('Laravel123')).toBe('Laravel123');
+
+    const longString = 'lorem ipsum ' + 'dolor sit amet '.repeat(1000);
+    const expectedResult = 'Lorem Ipsum Dolor Sit Amet ' + 'Dolor Sit Amet '.repeat(999);
+    expect(str.title(longString)).toBe(expectedResult);
+});
+
+test('headline', () => {
+    expect(str.headline('jefferson costella')).toBe('Jefferson Costella');
+    expect(str.headline('jefFErson coSTella')).toBe('Jefferson Costella');
+    expect(str.headline('jefferson_costella uses-_Laravel')).toBe('Jefferson Costella Uses Laravel');
+    expect(str.headline('jefferson_costella uses__Laravel')).toBe('Jefferson Costella Uses Laravel');
+
+    expect(str.headline('laravel_p_h_p_framework')).toBe('Laravel P H P Framework');
+    expect(str.headline('laravel _p _h _p _framework')).toBe('Laravel P H P Framework');
+    expect(str.headline('laravel_php_framework')).toBe('Laravel Php Framework');
+    expect(str.headline('laravel-phP-framework')).toBe('Laravel Ph P Framework');
+    expect(str.headline('laravel  -_-  php   -_-   framework   ')).toBe('Laravel Php Framework');
+
+    expect(str.headline('fooBar')).toBe('Foo Bar');
+    expect(str.headline('foo_bar')).toBe('Foo Bar');
+    expect(str.headline('foo-barBaz')).toBe('Foo Bar Baz');
+    expect(str.headline('foo-bar_baz')).toBe('Foo Bar Baz');
+
+    expect(str.headline('öffentliche-überraschungen')).toBe('Öffentliche Überraschungen');
+    expect(str.headline('-_öffentliche_überraschungen_-')).toBe('Öffentliche Überraschungen');
+    expect(str.headline('-öffentliche überraschungen')).toBe('Öffentliche Überraschungen');
+
+    expect(str.headline('sindÖdeUndSo')).toBe('Sind Öde Und So');
+
+    expect(str.headline('orwell 1984')).toBe('Orwell 1984');
+    expect(str.headline('orwell   1984')).toBe('Orwell 1984');
+    expect(str.headline('-orwell-1984 -')).toBe('Orwell 1984');
+    expect(str.headline(' orwell_- 1984 ')).toBe('Orwell 1984');
 });
 
 test('snake', () => {
@@ -454,6 +509,17 @@ test('ucfirst', () => {
     expect(str.ucfirst('laravel framework')).toBe('Laravel framework');
     expect(str.ucfirst('мама')).toBe('Мама');
     expect(str.ucfirst('мама мыла раму')).toBe('Мама мыла раму');
+});
+
+test('ucsplit', () => {
+    expect(str.ucsplit('Laravel_p_h_p_framework')).toEqual(['Laravel_p_h_p_framework']);
+    expect(str.ucsplit('Laravel_P_h_p_framework')).toEqual(['Laravel_', 'P_h_p_framework']);
+    expect(str.ucsplit('laravelPHPFramework')).toEqual(['laravel', 'P', 'H', 'P', 'Framework']);
+    expect(str.ucsplit('Laravel-phP-framework')).toEqual(['Laravel-ph', 'P-framework']);
+
+    expect(str.ucsplit('ŻółtaŁódka')).toEqual(['Żółta', 'Łódka']);
+    expect(str.ucsplit('sindÖdeUndSo')).toEqual(['sind', 'Öde', 'Und', 'So']);
+    expect(str.ucsplit('ÖffentlicheÜberraschungen')).toEqual(['Öffentliche', 'Überraschungen']);
 });
 
 test('wordCount', () => {

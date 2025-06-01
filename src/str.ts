@@ -295,6 +295,11 @@ export const isUuid = (value: any): boolean => {
     return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
 }
 
+// Convert a string to kebab case.
+export const kebab = (value: string): string => {
+    return snake(value, '-');
+};
+
 // Limit the number of words in a string.
 export const words = (value: string, words = 100, end = '...'): string => {
     if (words < 1) {
@@ -370,17 +375,37 @@ export const reverse = (value: string): string => {
     return value.split('').reverse().join('');
 }
 
+export const title = (value: string): string => {
+    return value
+        .toLocaleLowerCase()
+        .replace(/\p{L}+/gu, word =>
+            word.charAt(0).toLocaleUpperCase() + word.slice(1)
+        );
+}
+
+export const headline = (value: string): string => {
+    let parts = value.split(' ');
+
+    parts = parts.length > 1
+        ? parts.map(part => title(part))
+        : ucsplit(parts.join('_')).map(part => title(part));
+
+    const collapsed = parts.join('_').replace(/[-_ ]/g, '_');
+
+    return collapsed.split('_').filter(part => part.length).join(' ');
+}
+
 // Convert a string to snake case.
 export const snake = (value: string, delimiter: string = '_'): string => {
-    if (value !== value.toLowerCase()) {
-        value = value
-            .replace(/([^\s]+)/g, word => word[0].toUpperCase() + word.slice(1))
-            .replace(/\s+/g, '');
-
-        value = value.replace(/(.)(?=[A-Z])/g, `$1${delimiter}`).toLowerCase();
+    if (value === value.toLowerCase()) {
+        return value;
     }
 
-    return value;
+    value = ucwords(value).replace(/\s+/gu, '');
+
+    value = value.replace(/(.)(?=[A-Z])/gu, `$1${delimiter}`);
+
+    return value.toLowerCase();
 }
 
 // Remove all "extra" blank space from the given string.
@@ -405,6 +430,16 @@ export const lcfirst = (value: string): string => {
 export const ucfirst = (value: string): string => {
     return value.charAt(0).toUpperCase() + value.slice(1);
 }
+
+// Split a string into pieces by uppercase characters.
+export const ucsplit = (value: string) => {
+    return value.split(/(?=\p{Lu})/u).filter(Boolean);
+}
+
+// https://github.com/hirak/phpjs/blob/master/functions/strings/ucwords.js
+export const ucwords = (str: string): string => {
+  return str.replace(/^([a-z\u00E0-\u00FC])|\s+([a-z\u00E0-\u00FC])/g, ($1) => $1.toUpperCase());
+};
 
 // Get the number of words a string contains.
 export const wordCount = (string: string, characters: string = ''): number => {
