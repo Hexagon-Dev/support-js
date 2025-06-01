@@ -304,6 +304,28 @@ test('isJson', () => {
     expect(str.isJson([])).toBe(false);
 });
 
+test('isUrl', () => {
+    expect(str.isUrl('https://laravel.com')).toBe(true);
+    expect(str.isUrl('http://localhost')).toBe(true);
+    expect(str.isUrl('http://user:password@localhost')).toBe(true);
+    expect(str.isUrl('https://localhost:443')).toBe(true);
+    expect(str.isUrl('https://localhost/test')).toBe(true);
+    expect(str.isUrl('https://localhost?foo=bar')).toBe(true);
+    expect(str.isUrl('https://localhost#test')).toBe(true);
+    expect(str.isUrl('https://user:password@localhost/test?foo=bar#test')).toBe(true);
+
+    // invalid urls
+    expect(str.isUrl('unknown://laravel.com')).toBe(false);
+    expect(str.isUrl('notlocalhost')).toBe(false);
+    expect(str.isUrl('http://:password@localhost')).toBe(false);
+    expect(str.isUrl('http://user:@localhost')).toBe(false);
+    expect(str.isUrl('https://localhost:65536')).toBe(false);
+    expect(str.isUrl('https://localhost?foo=bar?bar=foo')).toBe(false);
+    expect(str.isUrl('https://localhost#foo#bar')).toBe(false);
+    expect(str.isUrl('https://user:password@localhost/test?foo=bar?bar=foo#test#test')).toBe(false);
+    expect(str.isUrl('invalid url')).toBe(false);
+});
+
 const validUuidList = [
     'a0a2a2d2-0b87-4a18-83f2-2529882be2de',
     '145a1e72-d11d-11e8-a8d5-f2801f1b9fd1',
