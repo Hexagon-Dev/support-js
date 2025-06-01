@@ -254,6 +254,39 @@ test('unwrap', () => {
     expect(str.unwrap('{some: "json"}', '{', '}')).toBe('some: "json"');
 });
 
+test('is', () => {
+    expect(str.is('/', '/')).toBe(true);
+    expect(str.is('/', ' /')).toBe(false);
+    expect(str.is('/', '/a')).toBe(false);
+    expect(str.is('foo/*', 'foo/bar/baz')).toBe(true);
+
+    expect(str.is('*@*', 'App\Class@method')).toBe(true);
+    expect(str.is('*@*', 'app\Class@')).toBe(true);
+    expect(str.is('*@*', '@method')).toBe(true);
+
+    // is case sensitive
+    expect(str.is('*BAZ*', 'foo/bar/baz')).toBe(false);
+    expect(str.is('*FOO*', 'foo/bar/baz')).toBe(false);
+    expect(str.is('A', 'a')).toBe(false);
+
+    // is not case sensitive
+    expect(str.is('A', 'a', true)).toBe(true);
+    expect(str.is('*BAZ*', 'foo/bar/baz', true)).toBe(true);
+    expect(str.is(['A*', 'B*'], 'a/', true)).toBe(true);
+    expect(str.is(['A*', 'B*'], 'f/', true)).toBe(false);
+    expect(str.is('FOO', 'foo', true)).toBe(true);
+    expect(str.is('*FOO*', 'foo/bar/baz', true)).toBe(true);
+    expect(str.is('foo/*', 'FOO/bar', true)).toBe(true);
+    
+    // Accepts array of patterns
+    expect(str.is(['a*', 'b*'], 'a/')).toBe(true);
+    expect(str.is(['a*', 'b*'], 'b/')).toBe(true);
+    expect(str.is(['a*', 'b*'], 'f/')).toBe(false);
+
+    // empty patterns
+    expect(str.is([], 'test')).toBe(false);
+});
+
 test('isJson', () => {
     expect(str.isJson('1')).toBe(true);
     expect(str.isJson('[1,2,3]')).toBe(true);

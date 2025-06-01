@@ -209,6 +209,40 @@ export const unwrap = (value: string, before: string, after?: string): string =>
     return value;
 }
 
+// Determine if a given string matches a given pattern.
+export const is = (patterns: string | Array<string>, value: string, ignoreCase = false) => {
+    if (!Array.isArray(patterns)) {
+        patterns = [patterns];
+    }
+
+    for (let pattern of patterns) {
+        // If the given value is an exact match we can of course return true right
+        // from the beginning. Otherwise, we will translate asterisks and do an
+        // actual pattern match against the two strings to see if they match.
+        if (pattern === value) {
+            return true;
+        }
+
+        if (ignoreCase && pattern.toLowerCase() === value.toLowerCase()) {
+            return true;
+        }
+
+        // Asterisks are translated into zero-or-more regular expression wildcards
+        // to make it convenient to check if the strings starts with the given
+        // pattern such as "library/*", making any string check convenient.
+        const regexPattern = '^' + escapeRegExp(pattern).replace(/\\\*/g, '.*') + '$';
+
+
+        const regex = new RegExp(regexPattern, ignoreCase ? 'iu' : 'u');
+
+        if (regex.test(value)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 // Determine if a given value is valid JSON.
 export const isJson = (value: any): boolean => {
     if (typeof value !== 'string') {
