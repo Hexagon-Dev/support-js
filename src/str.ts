@@ -370,6 +370,19 @@ export const reverse = (value: string): string => {
     return value.split('').reverse().join('');
 }
 
+// Convert a string to snake case.
+export const snake = (value: string, delimiter: string = '_'): string => {
+    if (value !== value.toLowerCase()) {
+        value = value
+            .replace(/([^\s]+)/g, word => word[0].toUpperCase() + word.slice(1))
+            .replace(/\s+/g, '');
+
+        value = value.replace(/(.)(?=[A-Z])/g, `$1${delimiter}`).toLowerCase();
+    }
+
+    return value;
+}
+
 // Remove all "extra" blank space from the given string.
 export const squish = (value: string): string => {
     return value.trim().replace(/(\s|\u3164|\u1160)+/gu, ' ');

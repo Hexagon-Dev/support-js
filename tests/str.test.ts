@@ -396,6 +396,19 @@ test('reverse', () => {
     expect(str.reverse('☆etyBitluM❤')).toBe('❤MultiByte☆');
 });
 
+test('snake', () => {
+    expect(str.snake('LaravelPHPFramework')).toBe('laravel_p_h_p_framework');
+    expect(str.snake('LaravelPhpFramework')).toBe('laravel_php_framework');
+    expect(str.snake('LaravelPhpFramework', ' ')).toBe('laravel php framework');
+    expect(str.snake('Laravel Php Framework')).toBe('laravel_php_framework');
+    expect(str.snake('Laravel    Php      Framework   ')).toBe('laravel_php_framework');
+    // prevent breaking changes
+    expect(str.snake('foo-bar')).toBe('foo-bar');
+    expect(str.snake('Foo-Bar')).toBe('foo-_bar');
+    expect(str.snake('Foo_Bar')).toBe('foo__bar');
+    expect(str.snake('ŻółtaŁódka')).toBe('żółtałódka');
+});
+
 test('squish', () => {
     expect(str.squish(' laravel   php  framework ')).toBe('laravel php framework');
     expect(str.squish("laravel\t\tphp\n\nframework")).toBe('laravel php framework');
