@@ -155,6 +155,32 @@ export const unwrap = (value, before, after) => {
     }
     return value;
 };
+// Determine if a given string matches a given pattern.
+export const is = (patterns, value, ignoreCase = false) => {
+    if (!Array.isArray(patterns)) {
+        patterns = [patterns];
+    }
+    for (let pattern of patterns) {
+        // If the given value is an exact match we can of course return true right
+        // from the beginning. Otherwise, we will translate asterisks and do an
+        // actual pattern match against the two strings to see if they match.
+        if (pattern === value) {
+            return true;
+        }
+        if (ignoreCase && pattern.toLowerCase() === value.toLowerCase()) {
+            return true;
+        }
+        // Asterisks are translated into zero-or-more regular expression wildcards
+        // to make it convenient to check if the strings starts with the given
+        // pattern such as "library/*", making any string check convenient.
+        const regexPattern = '^' + escapeRegExp(pattern).replace(/\\\*/g, '.*') + '$';
+        const regex = new RegExp(regexPattern, ignoreCase ? 'iu' : 'u');
+        if (regex.test(value)) {
+            return true;
+        }
+    }
+    return false;
+};
 // Determine if a given value is valid JSON.
 export const isJson = (value) => {
     if (typeof value !== 'string') {
@@ -168,12 +194,36 @@ export const isJson = (value) => {
     }
     return true;
 };
+// Determine if a given value is a valid URL.
+export const isUrl = (value, protocols = []) => {
+    const defaultProtocols = 'aaa|aaas|about|acap|acct|acd|acr|adiumxtra|adt|afp|afs|aim|amss|android|appdata|apt|ark|attachment|aw|barion|beshare|bitcoin|bitcoincash|blob|bolo|browserext|calculator|callto|cap|cast|casts|chrome|chrome-extension|cid|coap|coap\\+tcp|coap\\+ws|coaps|coaps\\+tcp|coaps\\+ws|com-eventbrite-attendee|content|conti|crid|cvs|dab|data|dav|diaspora|dict|did|dis|dlna-playcontainer|dlna-playsingle|dns|dntp|dpp|drm|drop|dtn|dvb|ed2k|elsi|example|facetime|fax|feed|feedready|file|filesystem|finger|first-run-pen-experience|fish|fm|ftp|fuchsia-pkg|geo|gg|git|gizmoproject|go|gopher|graph|gtalk|h323|ham|hcap|hcp|http|https|hxxp|hxxps|hydrazone|iax|icap|icon|im|imap|info|iotdisco|ipn|ipp|ipps|irc|irc6|ircs|iris|iris\\.beep|iris\\.lwz|iris\\.xpc|iris\\.xpcs|isostore|itms|jabber|jar|jms|keyparc|lastfm|ldap|ldaps|leaptofrogans|lorawan|lvlt|magnet|mailserver|mailto|maps|market|message|mid|mms|modem|mongodb|moz|ms-access|ms-browser-extension|ms-calculator|ms-drive-to|ms-enrollment|ms-excel|ms-eyecontrolspeech|ms-gamebarservices|ms-gamingoverlay|ms-getoffice|ms-help|ms-infopath|ms-inputapp|ms-lockscreencomponent-config|ms-media-stream-id|ms-mixedrealitycapture|ms-mobileplans|ms-officeapp|ms-people|ms-project|ms-powerpoint|ms-publisher|ms-restoretabcompanion|ms-screenclip|ms-screensketch|ms-search|ms-search-repair|ms-secondary-screen-controller|ms-secondary-screen-setup|ms-settings|ms-settings-airplanemode|ms-settings-bluetooth|ms-settings-camera|ms-settings-cellular|ms-settings-cloudstorage|ms-settings-connectabledevices|ms-settings-displays-topology|ms-settings-emailandaccounts|ms-settings-language|ms-settings-location|ms-settings-lock|ms-settings-nfctransactions|ms-settings-notifications|ms-settings-power|ms-settings-privacy|ms-settings-proximity|ms-settings-screenrotation|ms-settings-wifi|ms-settings-workplace|ms-spd|ms-sttoverlay|ms-transit-to|ms-useractivityset|ms-virtualtouchpad|ms-visio|ms-walk-to|ms-whiteboard|ms-whiteboard-cmd|ms-word|msnim|msrp|msrps|mss|mtqp|mumble|mupdate|mvn|news|nfs|ni|nih|nntp|notes|ocf|oid|onenote|onenote-cmd|opaquelocktoken|openpgp4fpr|pack|palm|paparazzi|payto|pkcs11|platform|pop|pres|prospero|proxy|pwid|psyc|pttp|qb|query|redis|rediss|reload|res|resource|rmi|rsync|rtmfp|rtmp|rtsp|rtsps|rtspu|s3|secondlife|service|session|sftp|sgn|shttp|sieve|simpleledger|sip|sips|skype|smb|sms|smtp|snews|snmp|soap\\.beep|soap\\.beeps|soldat|spiffe|spotify|ssh|steam|stun|stuns|submit|svn|tag|teamspeak|tel|teliaeid|telnet|tftp|tg|things|thismessage|tip|tn3270|tool|ts3server|turn|turns|tv|udp|unreal|urn|ut2004|v-event|vemmi|ventrilo|videotex|vnc|view-source|wais|webcal|wpid|ws|wss|wtai|wyciwyg|xcon|xcon-userid|xfire|xmlrpc\\.beep|xmlrpc\\.beeps|xmpp|xri|ymsgr|z39\\.50|z39\\.50r|z39\\.50s';
+    const protocolList = protocols.length > 0 ? protocols.join('|') : defaultProtocols;
+    const protocolPattern = `(?:${protocolList}):\\/\\/`;
+    const hostnamePattern = `(?:` +
+        `localhost|` + // localhost
+        `\\d{1,3}(?:\\.\\d{1,3}){3}|` + // IPv4
+        `\\[[0-9a-fA-F:.]+\\]|` + // IPv6
+        `[\\w-]+(?:\\.[\\w-]+)*` + // domain
+        `)`;
+    const authPattern = `(?:[\\w.%+-]+(?::[\\w.%+-]+)?@)?`; // optional user:pass@
+    const portPattern = `(?::(?:6553[0-5]|655[0-2]\\d|65[0-4]\\d{2}|6[0-4]\\d{3}|[1-5]?\\d{1,4}))?`; // optional :port in 0–65535
+    const pathPattern = `(?:/[\\w\\-.~%!$&'()*+,;=:@/]*)?`; // optional path
+    const queryPattern = `(?:\\?[^?#]*)?`; // single '?' and exclude nested '?' or '#'
+    const fragmentPattern = `(?:#[^#]*)?`; // single '#' only
+    const fullPattern = `^${protocolPattern}${authPattern}${hostnamePattern}${portPattern}${pathPattern}${queryPattern}${fragmentPattern}$`;
+    const regex = new RegExp(fullPattern, 'i');
+    return regex.test(value);
+};
 // Determine if a given value is a valid UUID.
 export const isUuid = (value) => {
     if (typeof value !== 'string') {
         return false;
     }
     return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+};
+// Convert a string to kebab case.
+export const kebab = (value) => {
+    return snake(value, '-');
 };
 // Limit the number of words in a string.
 export const words = (value, words = 100, end = '...') => {
@@ -227,6 +277,30 @@ export const random = (length = 16) => {
 export const reverse = (value) => {
     return value.split('').reverse().join('');
 };
+// Convert the given string to proper case.
+export const title = (value) => {
+    return value
+        .toLocaleLowerCase()
+        .replace(/\p{L}+/gu, word => word.charAt(0).toLocaleUpperCase() + word.slice(1));
+};
+// Convert the given string to proper case for each word.
+export const headline = (value) => {
+    let parts = value.split(' ');
+    parts = parts.length > 1
+        ? parts.map(part => title(part))
+        : ucsplit(parts.join('_')).map(part => title(part));
+    const collapsed = parts.join('_').replace(/[-_ ]/g, '_');
+    return collapsed.split('_').filter(part => part.length).join(' ');
+};
+// Convert a string to snake case.
+export const snake = (value, delimiter = '_') => {
+    if (value === value.toLowerCase()) {
+        return value;
+    }
+    value = ucwords(value).replace(/\s+/gu, '');
+    value = value.replace(/(.)(?=[A-Z])/gu, `$1${delimiter}`);
+    return value.toLowerCase();
+};
 // Remove all "extra" blank space from the given string.
 export const squish = (value) => {
     return value.trim().replace(/(\s|\u3164|\u1160)+/gu, ' ');
@@ -244,6 +318,15 @@ export const lcfirst = (value) => {
 // Make a string's first character uppercase.
 export const ucfirst = (value) => {
     return value.charAt(0).toUpperCase() + value.slice(1);
+};
+// Split a string into pieces by uppercase characters.
+export const ucsplit = (value) => {
+    return value.split(/(?=\p{Lu})/u).filter(Boolean);
+};
+// https://github.com/hirak/phpjs/blob/master/functions/strings/ucwords.js
+// Uppercase the first character of each word in a string.
+export const ucwords = (str) => {
+    return str.replace(/^([a-z\u00E0-\u00FC])|\s+([a-z\u00E0-\u00FC])/g, ($1) => $1.toUpperCase());
 };
 // Get the number of words a string contains.
 export const wordCount = (string, characters = '') => {
